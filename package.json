@@ -1,0 +1,22 @@
+{
+  "name": "typewriter2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "source": "src/index.html",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "scripts": {
+    "dev": "parcel",
+    "build": "parcel build --public-url /static/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://gitea@ssh.git.nahuy.life:1280/LitterbinCollective/typewriter2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "parcel": "^2.8.0"
+  }
+}
