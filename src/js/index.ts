@@ -1,15 +1,21 @@
-import App from './app';
+/*!
+  Copyright Litterbin Collective
+  SPDX-License-Identifier: Apache-2.0
+*/
+
+import container, { Container } from './container';
 
 declare global {
   interface Window {
     DEBUG?: boolean;
-    app?: App;
+    container?: Container;
   }
 };
 
 (function() {
-  const app = new App();
+  const viewport = document.querySelector('#viewport');
+  container.assign(viewport as HTMLCanvasElement);
 
   if (window.DEBUG)
-    window.app = app;
+    window.container = container;
 })();

@@ -18,5 +18,8 @@
   "license": "ISC",
   "dependencies": {
     "parcel": "^2.8.0"
+  },
+  "devDependencies": {
+    "parcel-reporter-static-files-copy": "^1.4.0"
   }
 }
