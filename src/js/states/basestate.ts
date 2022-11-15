@@ -13,7 +13,7 @@ export class BaseState {
     this.components.forEach(component => component.assign(canvas, context));
   }
 
-  get components(): BaseComponent[] {
+  public get components(): BaseComponent[] {
     return [ DEFAULT_COMPONENT ];
   }
 

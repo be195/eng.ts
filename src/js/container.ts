@@ -15,7 +15,7 @@ export class Container {
     );
   }
 
-  async importStates() {
+  private async importStates() {
     const { default: InitialState } = await import('./states/initial/index');
 
     this.states = {
@@ -25,7 +25,7 @@ export class Container {
     this.state = Object.keys(this.states)[0];
   }
 
-  animationFrame(time: number) {
+  private animationFrame(time: number) {
     const deltaTime = this.previousAnimationFrameTime ? time - this.previousAnimationFrameTime : 0;
     this.previousAnimationFrameTime = time;
 
