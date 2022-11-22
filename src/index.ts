@@ -3,11 +3,20 @@
   SPDX-License-Identifier: Apache-2.0
 */
 
-import container, { Container } from './container';
+import '@/default.css';
+
+import container, { Container } from '@/container';
+
+interface Config {
+  mode: 'development' | 'production' | 'none'
+};
 
 declare global {
+  interface globalThis {
+    CONFIG: Config;
+  }
+
   interface Window {
-    DEBUG?: boolean;
     container?: Container;
   }
 };
@@ -16,6 +25,6 @@ declare global {
   const viewport = document.querySelector('#viewport');
   container.assign(viewport as HTMLCanvasElement);
 
-  if (window.DEBUG)
+  if (globalThis.CONFIG.mode === 'development')
     window.container = container;
 })();

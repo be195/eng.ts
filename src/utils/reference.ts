@@ -1,10 +1,10 @@
-export default class Reference<T> {
+export class Reference<T> {
   private _value: T;
   private subscribers: Map<string, (value: T) => any> = new Map();
 
-  constructor(defaultValue?: T) {
-    if (defaultValue)
-      this._value = defaultValue;
+  constructor(value?: T) {
+    if (value)
+      this._value = value;
   }
 
   public get value(): T {
@@ -26,4 +26,8 @@ export default class Reference<T> {
   public unsubscribe(name: string) {
     this.subscribers.delete(name);
   }
+}
+
+export default function ref<T>(value?: T) {
+  return new Reference<T>(value);
 }

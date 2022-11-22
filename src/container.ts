@@ -1,10 +1,12 @@
-import { BaseState } from './states/basestate';
+import { BaseState } from '@/states/basestate';
+import { InitialState } from '@/states/initial/index';
+import { GameplayState } from '@/states/gameplay/index';
 
 export class Container {
   public canvas: HTMLCanvasElement;
   public context: CanvasRenderingContext2D;
   private previousAnimationFrameTime: number;
-  private state: string;
+  private stateID: string;
   private states: Record<string, BaseState>;
   
   public assign(canvas: HTMLCanvasElement) {
@@ -15,14 +17,20 @@ export class Container {
     );
   }
 
-  private async importStates() {
-    const { default: InitialState } = await import('./states/initial/index');
+  private get state() {
+    if (this.stateID && this.stateID in this.states)
+      return this.states[this.stateID];
 
+    return undefined;
+  } 
+
+  private async importStates() {
     this.states = {
-      initial: new InitialState(this.canvas, this.context)
+      initial: new InitialState(this.canvas, this.context),
+      gameplay: new GameplayState(this.canvas, this.context)
     };
 
-    this.state = Object.keys(this.states)[0];
+    this.switchTo('initial');
   }
 
   private animationFrame(time: number) {
@@ -32,18 +40,18 @@ export class Container {
     const { width, height } = this.canvas;
     this.context.clearRect(0, 0, width, height)
 
-    if (this.state && this.state in this.states) {
-      const state = this.states[this.state];
-      state.update(deltaTime);
-      state.render();
-    }
+    this.state.internalUpdate(deltaTime);
+    this.state.internalRender();
 
     window.requestAnimationFrame(t => this.animationFrame(t));
   }
 
   public switchTo(state: string) {
-    if (state in this.states)
-      return this.state = state;
+    if (state in this.states) {
+      this.stateID = state;
+      this.state.mounted();
+      return;
+    }
 
     throw new Error(`State "${state}" does not exist.`);
   }

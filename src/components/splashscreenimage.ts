@@ -5,14 +5,19 @@ class SplashScreenImageComponent extends BaseComponent {
 
   constructor() {
     super();
-
     this.image.src = '/images/ss.png';
   }
 
-  public render(width: number, height: number) {
+  public render() {
     this.context.fillStyle = 'white';
-    this.context.drawImage(this.image, 0, 0, width, height);
-  } 
+    this.context.drawImage(
+      this.image,
+      this.boundingRect.x,
+      this.boundingRect.y,
+      this.boundingRect.w,
+      this.boundingRect.h
+    );
+  }
 }
 
 export default new SplashScreenImageComponent();
