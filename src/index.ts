@@ -3,9 +3,9 @@
   SPDX-License-Identifier: Apache-2.0
 */
 
-import '@/default.css';
+const s = require('./default.css');
 
-import container, { Container } from '@/container';
+import container, { Container } from './container';
 
 interface Config {
   mode: 'development' | 'production' | 'none'
@@ -22,6 +22,7 @@ declare global {
 };
 
 (function() {
+  s.default.use();
   const viewport = document.querySelector('#viewport');
   container.assign(viewport as HTMLCanvasElement);
 

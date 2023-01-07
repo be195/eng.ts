@@ -1,4 +1,19 @@
 {
+  "animations": {
+    "test": {
+      "fps": 10,
+      "frames": [
+        "test/mont 0.aseprite.png",
+        "test/mont 1.aseprite.png",
+        "test/mont 2.aseprite.png",
+        "test/mont 3.aseprite.png",
+        "test/mont 4.aseprite.png",
+        "test/mont 5.aseprite.png",
+        "test/mont 6.aseprite.png",
+        "test/mont 7.aseprite.png"
+      ]
+    }
+  },
   "frames": {
     "hekopkh.png": {
       "frame": {

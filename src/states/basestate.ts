@@ -1,3 +1,4 @@
+
 import BaseComponent from '@/components/basecomponent';
 
 const DEFAULT_COMPONENT = new BaseComponent();
@@ -18,15 +19,23 @@ export class BaseState {
   }
 
   public mounted() {}
+  public handleKeyboardEvent(e: KeyboardEvent) {}
+  public handleMouseEvent(e: MouseEvent) {}
 
   public internalRender() {
     this.render();
 
     for (const component of this.components) {
-      this.context.save();
-      this.context.translate.apply(this.context, [ component.boundingRect.x, component.boundingRect.y ]);
-      component.render();
-      this.context.restore();
+      try {
+        this.context.save();
+        this.context.translate.apply(this.context, [ component.boundingRect.x, component.boundingRect.y ]);
+        component.render();
+        this.context.restore();
+      } catch (err: any) {
+        if (err instanceof Error)
+          err.message = 'Component ' + component.constructor.name + ': ' + err.message;
+        throw err;
+      }
     }
   }
 
@@ -34,7 +43,13 @@ export class BaseState {
     this.update(deltaTime);
 
     for (const component of this.components)
-      component.update(deltaTime);
+      try {
+        component.update(deltaTime);
+      } catch (err: any) {
+        if (err instanceof Error)
+          err.message = 'Component ' + component.constructor.name + ': ' + err.message;
+        throw err;
+      }
   }
 
   public render() {}

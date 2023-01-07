@@ -1,8 +1,8 @@
 import { BaseState } from '../basestate';
-import SplashScreenImageComponent from '@/components/splashscreenimage';
+import PlayerComponent from '@/components/playercomponent';
 
 export class GameplayState extends BaseState {
   public get components() {
-    return [ SplashScreenImageComponent ];
+    return [ PlayerComponent ];
   }
 };

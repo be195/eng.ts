@@ -1,4 +1,4 @@
-import { MoveableSizeableAttribute } from 'utils/types/moveablesizeableattr';
+import { MoveableSizeableAttribute } from '@/utils/types/moveablesizeableattr';
 
 export default class BaseComponent {
   public boundingRect: MoveableSizeableAttribute = { x: 0, y: 0, w: 0, h: 0 };

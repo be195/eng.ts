@@ -8,7 +8,7 @@ export class InitialState extends BaseState {
   }
 
   public mounted() {
-    console.log('Switching to gameplay right away...');
-    container.switchTo('gameplay');
+    // console.log('Switching to gameplay right away...');
+    // container.switchTo('gameplay');
   }
 };
