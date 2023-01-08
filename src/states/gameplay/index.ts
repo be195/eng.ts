@@ -6,3 +6,5 @@ export class GameplayState extends BaseState {
     return [ PlayerComponent ];
   }
 };
+
+export default new GameplayState();

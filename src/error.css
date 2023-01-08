@@ -1,4 +1,5 @@
 .runtime-error {
+  z-index: 999;
   background: #fbfdfb;
   font-family: Inter, sans-serif;
   border-radius: 8px;

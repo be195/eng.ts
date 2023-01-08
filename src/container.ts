@@ -1,6 +1,7 @@
 import { BaseState } from './states/basestate';
-import { InitialState } from './states/initial/index';
-import { GameplayState } from './states/gameplay/index';
+import initial from './states/initial/index';
+import gameplay from './states/gameplay/index';
+import { MoveableAttribute } from './utils/types/moveablesizeableattr';
 
 enum ERROR_STATES {
   NONE = 0,
@@ -27,6 +28,7 @@ export class Container {
   private halt = false;
   private previousAnimationFrameTime: number;
   private stateID: string;
+  private next?: string;
   private states: Record<string, BaseState>;
 
   constructor() {
@@ -62,8 +64,28 @@ export class Container {
     // keyboard events start with "key", everything else are mouse events
     if (e.type.startsWith('key'))
       this.state.handleKeyboardEvent(e as KeyboardEvent)
-    else
-      this.state.handleMouseEvent(e as MouseEvent);
+    else {
+      const event = e as MouseEvent;
+
+      let relativePos: MoveableAttribute = { x: 0, y: 0 };
+
+      // canvas' top is touching the DOM viewport's top as bottom is touching bottom
+      if (window.innerWidth / window.innerHeight >= this.canvas.width / this.canvas.height) {
+        const windowToCanvasRatio = window.innerHeight / this.canvas.height;
+        const offset = (window.innerWidth - this.canvas.width * windowToCanvasRatio) / 2;
+        const canvasToWindowRatio = this.canvas.height / window.innerHeight;
+        relativePos.x = (event.clientX - offset) * canvasToWindowRatio;
+        relativePos.y = event.clientY * canvasToWindowRatio;
+      } else { // canvas' left is touching the DOM viewport's left as right is touching right
+        const windowToCanvasRatio = window.innerWidth / this.canvas.width;
+        const offset = (window.innerHeight - this.canvas.height * windowToCanvasRatio) / 2;
+        const canvasToWindowRatio = this.canvas.width / window.innerWidth;
+        relativePos.x = event.clientX * canvasToWindowRatio;
+        relativePos.y = (event.clientY - offset) * canvasToWindowRatio;
+      }
+
+      this.state.internalHandleMouseEvent(event, relativePos);
+    }
   }
 
   private get state() {
@@ -75,8 +97,8 @@ export class Container {
 
   private async importStates() {
     this.states = {
-      initial: new InitialState(this.canvas, this.context),
-      gameplay: new GameplayState(this.canvas, this.context)
+      initial,
+      gameplay
     };
 
     this.switchTo('initial');
@@ -110,7 +132,20 @@ export class Container {
   }
 
   private animationFrame(time: number) {
+    if (this.next) {
+      if (this.state)
+        this.state.internalDestroy();
+      this.stateID = this.next;
+      this.state.internalMounted(this.canvas, this.context);
+      this.next = undefined;
+    }
+
     if (this.crashed) return;
+    if (this.halt) {
+      this.halt = false;
+      return;
+    }
+
     const deltaTime = this.previousAnimationFrameTime ? time - this.previousAnimationFrameTime : 0;
     this.previousAnimationFrameTime = time;
 
@@ -134,18 +169,14 @@ export class Container {
     if (this.crashed)
       return this.appendErrorOverlay();
 
-    if (this.halt) {
-      this.halt = false;
-      return;
-    }
-
     window.requestAnimationFrame(t => this.animationFrame(t));
   }
 
   public switchTo(state: string) {
     if (state in this.states) {
-      this.stateID = state;
-      this.state.mounted();
+      // we want to do this on the next frame as to
+      // not interrupt the currently running frame
+      this.next = state;
       return;
     }
 
