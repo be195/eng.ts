@@ -44,6 +44,9 @@ export class Container {
       throw new Error('no 2d context could be made');
     this.context = context;
 
+    this.stateID = 'initial';
+    this.state?.internalMounted(this.canvas, this.context);
+
     for (const event of USER_EVENTS)
       document.addEventListener(event, this.handleUserEvent);
 
