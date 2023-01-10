@@ -18,18 +18,18 @@ const USER_EVENTS = [
   'keyup'
 ];
 
-const error = require('./error.css');
+import './error.css';
 
 export class Container {
-  public canvas: HTMLCanvasElement;
-  public context: CanvasRenderingContext2D;
+  public canvas?: HTMLCanvasElement;
+  public context?: CanvasRenderingContext2D;
   private crashed: ERROR_STATES = ERROR_STATES.NONE;
-  private error: Error = null;
+  private error?: Error;
   private halt = false;
-  private previousAnimationFrameTime: number;
-  private stateID: string;
+  private previousAnimationFrameTime: number = 0;
+  private stateID: string = 'initial';
   private next?: string;
-  private states: Record<string, BaseState>;
+  private states: Record<string, BaseState> = { initial, gameplay };
 
   constructor() {
     this.handleUserEvent = this.handleUserEvent.bind(this);
@@ -38,13 +38,16 @@ export class Container {
 
   public assign(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    this.context = this.canvas.getContext('2d');
-    this.importStates().then(
-      () => window.requestAnimationFrame(this.animationFrame)
-    );
+
+    const context = this.canvas.getContext('2d');
+    if (!context)
+      throw new Error('no 2d context could be made');
+    this.context = context;
 
     for (const event of USER_EVENTS)
       document.addEventListener(event, this.handleUserEvent);
+
+    window.requestAnimationFrame(this.animationFrame);
   }
 
   public destroy() {
@@ -53,11 +56,11 @@ export class Container {
 
     this.canvas = undefined;
     this.context = undefined;
-    this.states = undefined;
     this.halt = true;
   }
 
   private handleUserEvent(e: Event) {
+    if (!this.state || !this.canvas) return;
     if (this.error && e.type === 'keydown' && (e as KeyboardEvent).key.toLowerCase() === 'r')
       window.location.reload();
 
@@ -95,15 +98,6 @@ export class Container {
     return undefined;
   }
 
-  private async importStates() {
-    this.states = {
-      initial,
-      gameplay
-    };
-
-    this.switchTo('initial');
-  }
-
   private appendErrorOverlay() {
     if (this.crashed === ERROR_STATES.NONE || !this.error) return;
     const elementContainer = document.createElement('div');
@@ -124,19 +118,18 @@ export class Container {
     trace.className = 'trace';
     trace.innerText = this.error.message + '\n\n' + this.error.stack;
 
-    error.default.use();
-
     content.append(text, trace);
     elementContainer.append(header, content);
     document.body.prepend(elementContainer);
   }
 
   private animationFrame(time: number) {
+    if (!this.canvas || !this.context) return;
     if (this.next) {
       if (this.state)
         this.state.internalDestroy();
       this.stateID = this.next;
-      this.state.internalMounted(this.canvas, this.context);
+      this.state?.internalMounted(this.canvas, this.context);
       this.next = undefined;
     }
 
@@ -153,17 +146,21 @@ export class Container {
     this.context.clearRect(0, 0, width, height);
 
     try {
-      this.state.internalUpdate(deltaTime);
+      this.state?.internalUpdate(deltaTime);
     } catch (err) {
-      this.crashed = ERROR_STATES.UPDATE;
-      this.error = err;
+      if (err instanceof Error) {
+        this.crashed = ERROR_STATES.UPDATE;
+        this.error = err;
+      }
     }
 
     try {
-      this.state.internalRender();
+      this.state?.internalRender();
     } catch (err) {
-      this.crashed = ERROR_STATES.RENDER;
-      this.error = err;
+      if (err instanceof Error) {
+        this.crashed = ERROR_STATES.RENDER;
+        this.error = err;
+      }
     }
 
     if (this.crashed)

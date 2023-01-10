@@ -1,30 +1,25 @@
 {
   "name": "typewriter2",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "source": "src/index.html",
-  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "webpack serve",
-    "build": "webpack --stats-error-details --progress"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
     "url": "ssh://gitea@ssh.git.nahuy.life:1280/LitterbinCollective/typewriter2.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
-    "copy-webpack-plugin": "^11.0.0",
-    "css-loader": "^6.7.2",
-    "html-webpack-plugin": "^5.5.0",
+    "@types/events": "^3.0.0",
     "style-loader": "^3.3.1",
-    "ts-loader": "^9.4.1",
     "typescript": "^4.9.3",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.0",
-    "webpack-dev-server": "^4.11.1"
+    "vite": "^4.0.4",
+    "vite-tsconfig-paths": "^4.0.3"
+  },
+  "dependencies": {
+    "events": "^3.3.0"
   }
 }

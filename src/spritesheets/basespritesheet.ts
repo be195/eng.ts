@@ -38,10 +38,10 @@ class AnimatedSpritesheetPart {
 
 export default class BaseSpritesheet {
   private readonly image = new Image();
-  private readonly data?: SpritesheetData;
+  private readonly data: SpritesheetData;
 
   constructor(name: string) {
-    this.image.src = '/spritesheets/' + name + '.png';
+    this.image.src = '/static/spritesheets/' + name + '.png';
 
     if (spritesheets[name])
       this.data = spritesheets[name]

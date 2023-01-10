@@ -1,7 +1,7 @@
-import { EventEmitter } from './events';
+import { EventEmitter } from 'events';
 
 export class Reference<T> extends EventEmitter {
-  private _value: T;
+  private _value?: T;
 
   constructor(value?: T) {
     super();
@@ -9,15 +9,23 @@ export class Reference<T> extends EventEmitter {
       this._value = value;
   }
 
-  public get value(): T {
+  public get value(): T | undefined {
     return this._value;
   }
 
-  public addEventListener(name: string, func: (previousValue: T, newValue: T) => void): void {
-    super.addEventListener(name, func);
+  public once(name: 'change', func: (previousValue: T, newValue: T) => void): this {
+    return super.once(name, func);
   }
 
-  public set value(newValue: T) {
+  public on(name: 'change', func: (previousValue: T, newValue: T) => void): this {
+    return super.on(name, func);
+  }
+
+  public off(name: 'change', func: (previousValue: T, newValue: T) => void): this {
+    return super.off(name, func);
+  }
+
+  public set value(newValue: T | undefined) {
     const previousValue = this._value;
     this._value = newValue;
 

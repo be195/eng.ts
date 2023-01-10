@@ -3,16 +3,17 @@ import { MoveableAttribute } from '@/utils/types/moveablesizeableattr';
 import BaseComponent from './basecomponent';
 
 class SplashScreenImageComponent extends BaseComponent {
-  private clickedAt: number;
+  private clickedAt?: number;
   private lock = false;
   private readonly image = new Image();
 
   constructor() {
     super();
-    this.image.src = '/images/ss.png';
+    this.image.src = '/static/images/ss.png';
   }
 
   public mounted(): void {
+    if (!this.canvas) return;
     this.boundingRect.w = this.canvas.width;
     this.boundingRect.h = this.canvas.height;
   }
@@ -22,10 +23,23 @@ class SplashScreenImageComponent extends BaseComponent {
   }
 
   private get delta() {
-    return (Date.now() - this.clickedAt) / 1000;
+    return this.clickedAt ? (Date.now() - this.clickedAt) / 500 : 0;
+  }
+
+  public once(eventName: 'end', listener: () => void): this {
+    return super.once(eventName, listener);
+  }
+
+  public on(eventName: 'end', listener: () => void): this {
+    return super.on(eventName, listener);
+  }
+
+  public off(eventName: 'end', listener: () => void): this {
+    return super.off(eventName, listener);
   }
 
   public render() {
+    if (!this.context) return;
     this.context.globalAlpha = this.clickedAt ? lerp(1, 0, this.delta) : 1;
 
     if (this.context.globalAlpha === 0 && !this.lock) {
@@ -48,6 +62,6 @@ class SplashScreenImageComponent extends BaseComponent {
     if (!this.clickedAt && e.type === 'click')
       this.clickedAt = Date.now();
   }
-}
+};
 
 export default new SplashScreenImageComponent();

@@ -13,12 +13,11 @@ export class InitialState extends BaseState {
   }
 
   public mounted() {
-    SplashScreenImageComponent.addEventListener('end', this.ended);
+    SplashScreenImageComponent.once('end', this.ended);
   }
 
   private ended() {
     container.switchTo('gameplay');
-    console.log('ok')
   }
 };
 

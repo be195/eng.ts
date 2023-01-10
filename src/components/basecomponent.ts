@@ -1,11 +1,11 @@
-import { EventEmitter } from '@/utils/events';
+import { EventEmitter } from 'events';
 import { MoveableAttribute, MoveableSizeableAttribute } from '@/utils/types/moveablesizeableattr';
 
 export default class BaseComponent extends EventEmitter {
   public boundingRect: MoveableSizeableAttribute = { x: 0, y: 0, w: 0, h: 0 };
   public canvas?: HTMLCanvasElement;
   public context?: CanvasRenderingContext2D;
-  public parent: BaseComponent;
+  public parent?: BaseComponent;
 
   public get components(): BaseComponent[] {
     return [];
@@ -13,7 +13,8 @@ export default class BaseComponent extends EventEmitter {
 
   /* @internal */
   public internalRender() {
-    if (!this.context || !this.canvas) return;
+    if (!this.context || !this.canvas)
+      throw new Error('internalRender called with no context or no canvas');
     this.render();
 
     for (const component of this.components) {
@@ -51,7 +52,11 @@ export default class BaseComponent extends EventEmitter {
     this.parent = parent;
 
     this.components.forEach(component =>
-      component.internalMounted(this.canvas, this.context, this)
+      component.internalMounted(
+        this.canvas as HTMLCanvasElement,
+        this.context as CanvasRenderingContext2D,
+        this
+      )
     );
 
     this.mounted();
@@ -70,7 +75,7 @@ export default class BaseComponent extends EventEmitter {
     this.destroy();
   }
 
-  public internalHandleMouseEvent(e: MouseEvent, relativePos: MoveableAttribute) {
+  public internalHandleMouseEvent(e: MouseEvent, relativePos: MoveableAttribute): void {
     relativePos.x -= this.boundingRect.x;
     relativePos.y -= this.boundingRect.y;
 
@@ -84,6 +89,7 @@ export default class BaseComponent extends EventEmitter {
   }
 
   public render() {
+    if (!this.context) return;
     this.context.fillStyle = 'white';
     this.context.font = '16px sans-serif';
     this.context.textAlign = 'center';
@@ -91,6 +97,8 @@ export default class BaseComponent extends EventEmitter {
     this.context.fillText('[base component]', this.boundingRect.w / 2, this.boundingRect.h / 2);
   }
 
+  public mouseEnter() {}
+  public mouseLeave() {}
   public handleKeyboardEvent(e: KeyboardEvent) {}
   public handleMouseEvent(e: MouseEvent, relativePos: MoveableAttribute) {}
   public mounted() {}

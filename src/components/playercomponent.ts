@@ -9,6 +9,7 @@ class PlayerComponent extends BaseComponent {
   }
 
   public render() {
+    if (!this.context) return;
     this.context.fillStyle = 'white';
     this.anim.render(this.context);
   }
