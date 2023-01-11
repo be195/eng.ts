@@ -12,3 +12,46 @@ html, body {
   image-rendering: pixelated;
   object-fit: contain;
 }
+
+.profiler-container {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  position: fixed;
+}
+
+.runtime-error {
+  z-index: 999;
+  background: #fbfdfb;
+  font-family: Inter, sans-serif;
+  border-radius: 8px;
+  border-top: 4px solid #bd2626;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 768px;
+}
+
+.runtime-error .header, .runtime-error .content {
+  padding: 0.75em;
+}
+
+.runtime-error .header {
+  color: #bd2626;
+  border-bottom: 1px solid #ddd;
+}
+
+.runtime-error .content .trace {
+  background: #161616;
+  color: #ddd;
+  border-radius: 8px;
+  font-family: monospace;
+  margin-top: 1em;
+  padding: 1em;
+  -webkit-box-shadow: 0px 25px 39px -33px rgba(0,0,0,0.75);
+  -moz-box-shadow: 0px 25px 39px -33px rgba(0,0,0,0.75);
+  box-shadow: 0px 25px 39px -33px rgba(0,0,0,0.75);
+}

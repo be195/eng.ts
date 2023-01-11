@@ -1,6 +1,7 @@
 import { BaseState } from '../basestate';
 import SplashScreenImageComponent from '@/components/splashscreenimage';
 import container from '@/container';
+import testmousemovecomponent from '@/components/testmousemovecomponent';
 
 export class InitialState extends BaseState {
   constructor() {
@@ -9,15 +10,17 @@ export class InitialState extends BaseState {
   }
 
   public get components() {
-    return [ SplashScreenImageComponent ];
+    return [ SplashScreenImageComponent, testmousemovecomponent ];
   }
 
   public mounted() {
     SplashScreenImageComponent.once('end', this.ended);
+    testmousemovecomponent.boundingRect.x = 64;
+    testmousemovecomponent.boundingRect.y = 32;
   }
 
   private ended() {
-    container.switchTo('gameplay');
+    container.stateID = 'gameplay';
   }
 };
 

@@ -18,25 +18,27 @@ const USER_EVENTS = [
   'keyup'
 ];
 
-import './error.css';
-
 export class Container {
   public canvas?: HTMLCanvasElement;
   public context?: CanvasRenderingContext2D;
+  public profilerContainer = document.createElement('div');
+  public stats?: Stats;
   private crashed: ERROR_STATES = ERROR_STATES.NONE;
   private error?: Error;
   private halt = false;
   private previousAnimationFrameTime: number = 0;
-  private stateID: string = 'initial';
+  private _stateID: string = 'initial';
   private next?: string;
   private states: Record<string, BaseState> = { initial, gameplay };
 
   constructor() {
     this.handleUserEvent = this.handleUserEvent.bind(this);
     this.animationFrame = this.animationFrame.bind(this);
+
+    this.profilerContainer.className = 'profiler-container';
   }
 
-  public assign(canvas: HTMLCanvasElement) {
+  public async assign(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
 
     const context = this.canvas.getContext('2d');
@@ -44,8 +46,16 @@ export class Container {
       throw new Error('no 2d context could be made');
     this.context = context;
 
-    this.stateID = 'initial';
+    this._stateID = 'initial';
     this.state?.internalMounted();
+
+    if (import.meta.env.MODE === 'development' && window.Stats !== undefined) {
+      document.body.append(this.profilerContainer);
+      this.stats = new window.Stats();
+      this.stats.showPanel(0);
+      this.stats.dom.style.position = '';
+      this.profilerContainer.append(this.stats.dom);
+    }
 
     for (const event of USER_EVENTS)
       document.addEventListener(event, this.handleUserEvent);
@@ -56,6 +66,11 @@ export class Container {
   public destroy() {
     for (const event of USER_EVENTS)
       document.removeEventListener(event, this.handleUserEvent);
+
+    if (this.stats) {
+      this.profilerContainer.removeChild(this.stats.dom);
+      document.body.removeChild(this.profilerContainer);
+    }
 
     this.canvas = undefined;
     this.context = undefined;
@@ -95,8 +110,8 @@ export class Container {
   }
 
   private get state() {
-    if (this.stateID && this.stateID in this.states)
-      return this.states[this.stateID];
+    if (this._stateID && this._stateID in this.states)
+      return this.states[this._stateID];
 
     return undefined;
   }
@@ -129,10 +144,13 @@ export class Container {
 
   private animationFrame(time: number) {
     if (!this.canvas || !this.context) return;
+    if (this.stats)
+      this.stats.begin();
+
     if (this.next) {
       if (this.state)
         this.state.internalDestroy();
-      this.stateID = this.next;
+      this._stateID = this.next;
       this.state?.internalMounted();
       this.next = undefined;
     }
@@ -170,18 +188,18 @@ export class Container {
     if (this.crashed)
       return this.appendErrorOverlay();
 
+    if (this.stats)
+      this.stats.end();
+
     window.requestAnimationFrame(t => this.animationFrame(t));
   }
 
-  public switchTo(state: string) {
-    if (state in this.states) {
-      // we want to do this on the next frame as to
-      // not interrupt the currently running frame
-      this.next = state;
-      return;
-    }
+  public get stateID() {
+    return this._stateID;
+  }
 
-    throw new Error(`State "${state}" does not exist.`);
+  public set stateID(state: string) {
+    this.next = state;
   }
 };
 
