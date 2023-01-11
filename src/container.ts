@@ -45,7 +45,7 @@ export class Container {
     this.context = context;
 
     this.stateID = 'initial';
-    this.state?.internalMounted(this.canvas, this.context);
+    this.state?.internalMounted();
 
     for (const event of USER_EVENTS)
       document.addEventListener(event, this.handleUserEvent);
@@ -103,6 +103,7 @@ export class Container {
 
   private appendErrorOverlay() {
     if (this.crashed === ERROR_STATES.NONE || !this.error) return;
+    console.error(this.error);
     const elementContainer = document.createElement('div');
     elementContainer.className = 'runtime-error';
 
@@ -132,7 +133,7 @@ export class Container {
       if (this.state)
         this.state.internalDestroy();
       this.stateID = this.next;
-      this.state?.internalMounted(this.canvas, this.context);
+      this.state?.internalMounted();
       this.next = undefined;
     }
 

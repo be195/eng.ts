@@ -1,10 +1,9 @@
 import { EventEmitter } from 'events';
 import { MoveableAttribute, MoveableSizeableAttribute } from '@/utils/types/moveablesizeableattr';
+import container from '@/container';
 
 export default class BaseComponent extends EventEmitter {
   public boundingRect: MoveableSizeableAttribute = { x: 0, y: 0, w: 0, h: 0 };
-  public canvas?: HTMLCanvasElement;
-  public context?: CanvasRenderingContext2D;
   public parent?: BaseComponent;
 
   public get components(): BaseComponent[] {
@@ -13,19 +12,18 @@ export default class BaseComponent extends EventEmitter {
 
   /* @internal */
   public internalRender() {
-    if (!this.context || !this.canvas)
-      throw new Error('internalRender called with no context or no canvas');
+    if (!container.context || !container.canvas)
+      throw new Error('internalRender called with no viewport assigned in container');
     this.render();
 
     for (const component of this.components) {
       try {
-        this.context.save();
-        this.context.translate.apply(this.context, [ component.boundingRect.x, component.boundingRect.y ]);
+        container.context.save();
+        container.context.translate.apply(container.context, [ component.boundingRect.x, component.boundingRect.y ]);
         component.internalRender();
-        this.context.restore();
-      } catch (err: any) {
-        if (err instanceof Error)
-          err.message = 'Component ' + component.constructor.name + ': ' + err.message;
+        container.context.restore();
+      } catch (err) {
+        console.error('Component', component.constructor.name, 'has spew a render error!');
         throw err;
       }
     }
@@ -38,25 +36,18 @@ export default class BaseComponent extends EventEmitter {
     for (const component of this.components)
       try {
         component.internalUpdate(deltaTime);
-      } catch (err: any) {
-        if (err instanceof Error)
-          err.message = 'Component ' + component.constructor.name + ': ' + err.message;
+      } catch (err) {
+        console.error('Component', component.constructor.name, 'has spew an update error!');
         throw err;
       }
   }
 
   /* @internal */
-  public internalMounted(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, parent?: BaseComponent) {
-    this.canvas = canvas;
-    this.context = context;
+  public internalMounted(parent?: BaseComponent) {
     this.parent = parent;
 
     this.components.forEach(component =>
-      component.internalMounted(
-        this.canvas as HTMLCanvasElement,
-        this.context as CanvasRenderingContext2D,
-        this
-      )
+      component.internalMounted(this)
     );
 
     this.mounted();
@@ -64,8 +55,6 @@ export default class BaseComponent extends EventEmitter {
 
   /* @internal */
   public internalDestroy() {
-    this.canvas = undefined;
-    this.context = undefined;
     this.parent = undefined;
 
     this.components.forEach(component =>
@@ -89,12 +78,12 @@ export default class BaseComponent extends EventEmitter {
   }
 
   public render() {
-    if (!this.context) return;
-    this.context.fillStyle = 'white';
-    this.context.font = '16px sans-serif';
-    this.context.textAlign = 'center';
-    this.context.textBaseline = 'middle';
-    this.context.fillText('[base component]', this.boundingRect.w / 2, this.boundingRect.h / 2);
+    if (!container.context) return;
+    container.context.fillStyle = 'white';
+    container.context.font = '16px sans-serif';
+    container.context.textAlign = 'center';
+    container.context.textBaseline = 'middle';
+    container.context.fillText('[base component]', this.boundingRect.w / 2, this.boundingRect.h / 2);
   }
 
   public mouseEnter() {}

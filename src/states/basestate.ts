@@ -1,5 +1,6 @@
 
 import BaseComponent from '@/components/basecomponent';
+import container from '@/container';
 
 const DEFAULT_COMPONENT = new BaseComponent();
 
@@ -11,21 +12,16 @@ export class BaseState extends BaseComponent {
   public render() {}
 
   /* @internal */
-  public internalMounted(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, parent?: BaseComponent) {
-    this.canvas = canvas;
-    this.context = context;
-    this.parent = parent;
+  public internalMounted() {
+    if (!container.canvas)
+      throw new Error('internalMounted called with no viewport assigned in container');
 
     this.components.forEach(component =>
-      component.internalMounted(
-        this.canvas as HTMLCanvasElement,
-        this.context as CanvasRenderingContext2D,
-        this
-      )
+      component.internalMounted(this)
     );
 
-    this.boundingRect.w = this.canvas.width;
-    this.boundingRect.h = this.canvas.height;
+    this.boundingRect.w = container.canvas.width;
+    this.boundingRect.h = container.canvas.height;
 
     this.mounted();
   }

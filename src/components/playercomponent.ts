@@ -1,5 +1,6 @@
 import BaseComponent from './basecomponent';
 import common from '@/spritesheets/common';
+import container from '@/container';
 
 class PlayerComponent extends BaseComponent {
   private readonly anim = common.useAnimation('test');
@@ -8,10 +9,14 @@ class PlayerComponent extends BaseComponent {
     super();
   }
 
+  public mounted(): void {
+    common.use();
+  }
+
   public render() {
-    if (!this.context) return;
-    this.context.fillStyle = 'white';
-    this.anim.render(this.context);
+    if (!container.context) return;
+    container.context.fillStyle = 'white';
+    this.anim.render();
   }
 
   public update(dt: number) {

@@ -4,6 +4,7 @@ import {
   SpritesheetAnimation,
   SpritesheetData,
 } from '@/utils/types/spritesheetdata';
+import container from '@/container';
 
 class AnimatedSpritesheetPart {
   public fps: number;
@@ -22,9 +23,9 @@ class AnimatedSpritesheetPart {
     return 1000 / this.fps;
   }
 
-  public render(context: CanvasRenderingContext2D, offset: MoveableAttribute = { x: 0, y: 0 }) {
+  public render(offset: MoveableAttribute = { x: 0, y: 0 }) {
     const current = this.frames[this.frame];
-    this.spritesheet.renderFrame(context, current, offset);
+    this.spritesheet.renderFrame(current, offset);
   }
 
   public update(dt: number) {
@@ -37,33 +38,49 @@ class AnimatedSpritesheetPart {
 };
 
 export default class BaseSpritesheet {
-  private readonly image = new Image();
   private readonly data: SpritesheetData;
+  private readonly image = new Image();
+  private readonly name;
 
   constructor(name: string) {
-    this.image.src = '/static/spritesheets/' + name + '.png';
-
+    this.name = name;
     if (spritesheets[name])
       this.data = spritesheets[name]
     else
       throw new Error('No such spritesheet data: "' + name + '".');
   }
 
-  public renderFrame(context: CanvasRenderingContext2D, name: string, offset: MoveableAttribute = { x: 0, y: 0 }) {
+  public use() {
+    this.image.src = '/spritesheets/' + this.name + '.png';
+  }
+
+  public renderFrame(name: string, offset: MoveableAttribute = { x: 0, y: 0 }) {
+    if (!container.context)
+      throw new Error('renderFrame called with no viewport assigned in container');
     if (!(name in this.data.frames))
       throw new Error('No such spritesheet frame: "' + name + '".');
     const frame = this.data.frames[name];
-    context.drawImage(
-      this.image,
-      frame.frame.x,
-      frame.frame.y,
-      frame.frame.w,
-      frame.frame.h,
-      offset.x + frame.spriteSourceSize.x,
-      offset.y + frame.spriteSourceSize.y,
-      frame.spriteSourceSize.w,
-      frame.spriteSourceSize.h
-    );
+    if (this.image.complete && this.image.src.length > 0) {
+      container.context.drawImage(
+        this.image,
+        frame.frame.x,
+        frame.frame.y,
+        frame.frame.w,
+        frame.frame.h,
+        offset.x + frame.spriteSourceSize.x,
+        offset.y + frame.spriteSourceSize.y,
+        frame.spriteSourceSize.w,
+        frame.spriteSourceSize.h
+      );
+    } else {
+      container.context.strokeStyle = '#ff0000';
+      container.context.strokeRect(
+        offset.x + frame.spriteSourceSize.x,
+        offset.y + frame.spriteSourceSize.y,
+        frame.spriteSourceSize.w,
+        frame.spriteSourceSize.h
+      );
+    }
   }
 
   public useAnimation(name: string) {

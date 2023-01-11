@@ -1,5 +1,7 @@
+import container from '@/container';
 import { lerp } from '@/utils/functions';
 import { MoveableAttribute } from '@/utils/types/moveablesizeableattr';
+
 import BaseComponent from './basecomponent';
 
 class SplashScreenImageComponent extends BaseComponent {
@@ -9,13 +11,13 @@ class SplashScreenImageComponent extends BaseComponent {
 
   constructor() {
     super();
-    this.image.src = '/static/images/ss.png';
+    this.image.src = '/images/ss.png';
   }
 
   public mounted(): void {
-    if (!this.canvas) return;
-    this.boundingRect.w = this.canvas.width;
-    this.boundingRect.h = this.canvas.height;
+    if (!container.canvas) return;
+    this.boundingRect.w = container.canvas.width;
+    this.boundingRect.h = container.canvas.height;
   }
 
   public destroy(): void {
@@ -39,17 +41,17 @@ class SplashScreenImageComponent extends BaseComponent {
   }
 
   public render() {
-    if (!this.context) return;
-    this.context.globalAlpha = this.clickedAt ? lerp(1, 0, this.delta) : 1;
+    if (!container.context) return;
+    container.context.globalAlpha = this.clickedAt ? lerp(1, 0, this.delta) : 1;
 
-    if (this.context.globalAlpha === 0 && !this.lock) {
+    if (container.context.globalAlpha === 0 && !this.lock) {
       this.emit('end');
       this.lock = true;
       return;
     }
 
-    this.context.fillStyle = 'white';
-    this.context.drawImage(
+    container.context.fillStyle = 'white';
+    container.context.drawImage(
       this.image,
       this.boundingRect.x,
       this.boundingRect.y,
