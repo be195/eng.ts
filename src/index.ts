@@ -1,6 +1,6 @@
 /*!
-  Copyright Litterbin Collective
-  SPDX-License-Identifier: Apache-2.0
+  Copyright be195
+  SPDX-License-Identifier: MIT
 */
 
 import './default.css';
