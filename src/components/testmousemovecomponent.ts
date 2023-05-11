@@ -23,8 +23,9 @@ class TestMouseMoveComponent extends BaseComponent {
     container.context.stroke();
   }
 
-  public handleMouseEvent(e: MouseEvent, relativePos: MoveableAttribute): void {
+  public handleMouseEvent(e: MouseEvent, relativePos: MoveableAttribute) {
     this.mousemove.push(relativePos);
+    return this.cursor;
   }
 }
 

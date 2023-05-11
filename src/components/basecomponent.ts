@@ -4,6 +4,7 @@ import container from '@/container';
 
 export default class BaseComponent extends EventEmitter {
   public boundingRect: MoveableSizeableAttribute = { x: 0, y: 0, w: 0, h: 0 };
+  public cursor: string | false = false;
   public parent?: BaseComponent;
   public stats?: Stats.Panel;
 
@@ -74,18 +75,23 @@ export default class BaseComponent extends EventEmitter {
     this.destroy();
   }
 
-  public internalHandleMouseEvent(e: MouseEvent, relativePos: MoveableAttribute): void {
+  public internalHandleMouseEvent(e: MouseEvent, relativePos: MoveableAttribute): string {
     relativePos.x -= this.boundingRect.x;
     relativePos.y -= this.boundingRect.y;
+
+    let cursor = this.cursor || 'default';
 
     for (let i = this.components.length - 1; i >= 0; i--) {
       const component = this.components[i];
       const { x, y, w, h } = component.boundingRect;
       if (relativePos.x >= x && relativePos.y >= y && relativePos.x < (x + w) && relativePos.y < (y + h))
-        return component.internalHandleMouseEvent(e, relativePos);
+        return cursor = component.internalHandleMouseEvent(e, relativePos);
     }
 
-    return this.handleMouseEvent(e, relativePos);
+    let returned = this.handleMouseEvent(e, relativePos);
+    if (returned) cursor = returned;
+
+    return cursor;
   }
 
   public render() {
@@ -97,10 +103,13 @@ export default class BaseComponent extends EventEmitter {
     container.context.fillText('[base component]', this.boundingRect.w / 2, this.boundingRect.h / 2);
   }
 
+  public handleMouseEvent(e: MouseEvent, relativePos: MoveableAttribute) {
+    return this.cursor;
+  }
+
   public mouseEnter() {}
   public mouseLeave() {}
   public handleKeyboardEvent(e: KeyboardEvent) {}
-  public handleMouseEvent(e: MouseEvent, relativePos: MoveableAttribute) {}
   public mounted() {}
   public destroy() {}
   public update(deltaTime: number) {}

@@ -8,7 +8,7 @@ export function useStore<T>(name: string, defaultValue: T) {
 
   const reference = ref(defaultValue);
   storage.set(name, reference);
-  return ref;
+  return reference;
 }
 
 export function clearStore() {

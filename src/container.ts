@@ -2,6 +2,7 @@ import { BaseState } from './states/basestate';
 import initial from './states/initial/index';
 import gameplay from './states/gameplay/index';
 import { MoveableAttribute } from './utils/types/moveablesizeableattr';
+import ref from './utils/reference';
 
 enum ERROR_STATES {
   NONE = 0,
@@ -21,6 +22,7 @@ const USER_EVENTS = [
 export class Container {
   public canvas?: HTMLCanvasElement;
   public context?: CanvasRenderingContext2D;
+  public cursor = ref('cursor');
   public profilerContainer = document.createElement('div');
   public stats?: Stats;
   private crashed: ERROR_STATES = ERROR_STATES.NONE;
@@ -32,10 +34,17 @@ export class Container {
   private states: Record<string, BaseState> = { initial, gameplay };
 
   constructor() {
+    this.onCursorChange = this.onCursorChange.bind(this);
     this.handleUserEvent = this.handleUserEvent.bind(this);
     this.animationFrame = this.animationFrame.bind(this);
 
     this.profilerContainer.className = 'profiler-container';
+  }
+
+  private onCursorChange(old: string, new_: string) {
+    if (this.canvas)
+      this.canvas.style.cursor = new_;
+    console.log('cursor changed from ', old, ' to ', new_);
   }
 
   public async assign(canvas: HTMLCanvasElement) {
@@ -60,6 +69,8 @@ export class Container {
     for (const event of USER_EVENTS)
       document.addEventListener(event, this.handleUserEvent);
 
+    this.cursor.on('change', this.onCursorChange);
+
     window.requestAnimationFrame(this.animationFrame);
   }
 
@@ -71,6 +82,8 @@ export class Container {
       this.profilerContainer.removeChild(this.stats.dom);
       document.body.removeChild(this.profilerContainer);
     }
+
+    this.cursor.off('change', this.onCursorChange);
 
     this.canvas = undefined;
     this.context = undefined;

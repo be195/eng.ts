@@ -37,3 +37,7 @@ export class Reference<T> extends EventEmitter {
 export default function ref<T>(value?: T) {
   return new Reference<T>(value);
 }
+
+export function unref<T>(value: Reference<T> | T): T | undefined {
+  return value instanceof Reference ? value.value : value;
+}

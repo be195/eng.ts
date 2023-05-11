@@ -5,6 +5,7 @@ import { MoveableAttribute } from '@/utils/types/moveablesizeableattr';
 import BaseComponent from './basecomponent';
 
 class SplashScreenImageComponent extends BaseComponent {
+  public cursor = 'pointer';
   private clickedAt?: number;
   private lock = false;
   private readonly image = new Image();
@@ -60,9 +61,10 @@ class SplashScreenImageComponent extends BaseComponent {
     );
   }
 
-  public handleMouseEvent(e: MouseEvent, _: MoveableAttribute): void {
+  public handleMouseEvent(e: MouseEvent, _: MoveableAttribute) {
     if (!this.clickedAt && e.type === 'click')
       this.clickedAt = Date.now();
+    return this.cursor;
   }
 };
 
